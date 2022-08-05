@@ -13,24 +13,38 @@ const initialResponse: responseType = {
   expiresIn: 0
 };
 
+const accessToken = localStorage.getItem('accessToken');
+
 export default function useAuth(code: string | null) {
   const [response, setResponse] = useState<responseType>(initialResponse);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await axios.post('http://localhost:3001/login', { code });
-        setResponse({
-          accessToken: res.data.accessToken,
-          expiresIn: res.data.expiresIn,
-          refreshToken: res.data.refreshToken
-        });
-      } catch (error) {
-        console.log(error);
-        window.open('/login', '_self');
-      }
-    };
+  const refreshToken = async () => {
+    try {
+      const res = await axios.post('http://localhost:3001/refresh');
+      localStorage.setItem('accessToken', res.data.accessToken);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
+  const fetchData = async () => {
+    try {
+      if (accessToken) return;
+      const res = await axios.post('http://localhost:3001/login', { code });
+      setResponse({
+        accessToken: res.data.accessToken,
+        expiresIn: res.data.expiresIn,
+        refreshToken: res.data.refreshToken
+      });
+      localStorage.setItem('accessToken', res.data.accessToken);
+    } catch (error) {
+      if (error.response.status == 401) {
+        refreshToken();
+      }
+    }
+  };
+
+  useEffect(() => {
     fetchData();
   }, [code]);
 
