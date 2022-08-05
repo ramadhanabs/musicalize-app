@@ -1,5 +1,5 @@
 import { Box, Text } from '@chakra-ui/react';
-import { FiHome, FiTrendingUp } from 'react-icons/fi';
+import { FiHome, FiTrendingUp, FiLogOut } from 'react-icons/fi';
 import { IconType } from 'react-icons';
 import NavItem from './nav-item';
 
@@ -23,6 +23,9 @@ const LinkItems: Array<LinkItemProps> = [
 ];
 
 const Sidebar = () => {
+  const handleSignOut = () => {
+    localStorage.removeItem('accessToken');
+  };
   return (
     <Box
       minH="100vh"
@@ -43,6 +46,9 @@ const Sidebar = () => {
             {link.name}
           </NavItem>
         ))}
+        <NavItem icon={FiLogOut} onClick={handleSignOut} route="login">
+          Sign Out
+        </NavItem>
       </>
     </Box>
   );
