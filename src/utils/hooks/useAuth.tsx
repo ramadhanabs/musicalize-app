@@ -18,15 +18,6 @@ const accessToken = localStorage.getItem('accessToken');
 export default function useAuth(code: string | null) {
   const [response, setResponse] = useState<responseType>(initialResponse);
 
-  const refreshToken = async () => {
-    try {
-      const res = await axios.post('http://localhost:3001/refresh');
-      localStorage.setItem('accessToken', res.data.accessToken);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
   const fetchData = async () => {
     try {
       if (accessToken) return;
@@ -37,16 +28,17 @@ export default function useAuth(code: string | null) {
         refreshToken: res.data.refreshToken
       });
       localStorage.setItem('accessToken', res.data.accessToken);
+      window.history.pushState({}, '', '/');
     } catch (error) {
       if (error.response.status == 401) {
-        refreshToken();
+        window.open('/login', '_self');
       }
     }
   };
 
   useEffect(() => {
     fetchData();
-  }, [code]);
+  }, [accessToken]);
 
   return response;
 }
